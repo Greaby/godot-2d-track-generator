@@ -21,6 +21,7 @@ export (int) var max_length := 80
 export (int, 0, 10) var margin := 0
 
 var track := []
+var checkpoints := []
 
 var in_progress := false
 var stop_generation := false
@@ -30,6 +31,7 @@ var last_direction : Vector2
 var end_position : Vector2
 
 onready var track_map := $TrackMap
+onready var checkpoint_container := $Checkpoints
 
 func _ready() -> void:
 	assert(min_length < max_length)
@@ -45,15 +47,22 @@ func _input(event: InputEvent) -> void:
 			stop_generation = true
 			yield(self, "generation_completed")
 
-		generate()
+		regenerate()
+
+
+func regenerate() -> void:
+	track_map.clear()
+	track = []
+	checkpoints = []
+	for checkpoint in checkpoint_container.get_children():
+		checkpoint.queue_free()
+		
+	generate()
 
 
 func generate() -> void:
-	# init variable
-	in_progress = true
-	track_map.clear()
-	track = []
 	
+	in_progress = true
 	
 	# start position
 	var start_position = Vector2(randi() % int(track_rect.size.x - 2) + 1, randi() % int(track_rect.size.y - 2) + 1)
@@ -61,6 +70,7 @@ func generate() -> void:
 	
 	var position = next_position()
 	track.push_back(position)
+	create_checkpoint(position)
 	
 	end_position = start_position - last_direction
 
@@ -75,6 +85,8 @@ func generate() -> void:
 	while !stop_generation and position != end_position:
 		position = next_position()
 		track.push_back(position)
+		create_checkpoint(position)
+		
 		if track.size() > 2:
 			draw_cell(track[-2], track[-3], track[-1])
 		
@@ -84,9 +96,10 @@ func generate() -> void:
 	# draw last cell with start_position
 	draw_cell(track[-1], track[-2], track[0])
 
+	create_checkpoint(start_position)
 
 	if !stop_generation and (track.size() < min_length or track.size() > max_length):
-		return generate()
+		return regenerate()
 	
 	stop_generation = false
 	in_progress = false
@@ -97,7 +110,7 @@ func next_position() -> Vector2:
 	var position = track[-1]
 	var directions := get_available_directions(position)
 	
-	if directions.size() == 0:
+	if directions.empty():
 		rollback()
 		return next_position()
 	
@@ -105,6 +118,12 @@ func next_position() -> Vector2:
 	var next_position = position + last_direction
 		
 	return next_position
+	
+func create_checkpoint(position: Vector2) -> void:
+	var checkpoint_scene = load("res://checkpoint.tscn").instance()
+	checkpoint_scene.position = position * 128
+	checkpoint_container.add_child(checkpoint_scene)
+	checkpoints.push_back(checkpoint_scene)
 	
 	
 func draw_cell(cell: Vector2, prev_cell: Vector2, next_cell: Vector2) -> void:
@@ -126,7 +145,14 @@ func draw_cell(cell: Vector2, prev_cell: Vector2, next_cell: Vector2) -> void:
 			track_map.set_cellv(cell, track_map.tile_set.find_tile_by_name("down_left"))
 
 func rollback() -> void:
+	var index = track.size()
+	
 	var position = track.pop_back()
+	var last_checkpoint = checkpoints.pop_back()
+	
+	if last_checkpoint:
+		last_checkpoint.queue_free()
+	
 	track_map.set_cellv(position, CELLS.LOCK)
 	
 	

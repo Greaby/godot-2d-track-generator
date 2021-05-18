@@ -5,12 +5,13 @@
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 3 )
-generation_debug = true
 generation_delay = 0.01
-last_direction_priority = 3
+last_direction_priority = 4
 margin = 2
 
 [node name="TrackMap" type="TileMap" parent="."]
 tile_set = ExtResource( 1 )
 cell_size = Vector2( 128, 128 )
 format = 1
+
+[node name="Checkpoints" type="Node2D" parent="."]
