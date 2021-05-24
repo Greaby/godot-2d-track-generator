@@ -1,17 +1,26 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://road.tres" type="TileSet" id=1]
+[ext_resource path="res://road/road.tres" type="TileSet" id=1]
+[ext_resource path="res://track_generator/track_generator.gd" type="Script" id=2]
 [ext_resource path="res://main.gd" type="Script" id=3]
+[ext_resource path="res://track_generator/debug_map.tscn" type="PackedScene" id=4]
+[ext_resource path="res://track_generator/debug_tiles.tres" type="TileSet" id=5]
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 3 )
-generation_delay = 0.01
-last_direction_priority = 4
-margin = 2
+
+[node name="TrackGenerator" type="Node" parent="."]
+script = ExtResource( 2 )
+debug = true
+debug_map = NodePath("../DebugMap")
+debug_delay = 0.02
+line_priority = 4
+
+[node name="Checkpoints" type="Node2D" parent="."]
 
 [node name="TrackMap" type="TileMap" parent="."]
 tile_set = ExtResource( 1 )
-cell_size = Vector2( 128, 128 )
 format = 1
 
-[node name="Checkpoints" type="Node2D" parent="."]
+[node name="DebugMap" parent="." instance=ExtResource( 4 )]
+tile_set = ExtResource( 5 )

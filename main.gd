@@ -1,174 +1,69 @@
 extends Node2D
 
-signal generation_completed
-
-enum CELLS {
-	EMPTY = -1, 
-	LOCK = -2, 
-}
-
-const DIRECTIONS = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
-
-export (Rect2) var track_rect := Rect2(Vector2(0,0), Vector2(16, 9))
-export (bool) var generation_debug := false
-export (float, 0.0, 1.0) var generation_delay := 0.1
-
-export (int, 1, 10) var last_direction_priority := 0
-
-export (int, 4, 100) var min_length := 15
-export (int) var max_length := 80
-
-export (int, 0, 10) var margin := 0
-
-var track := []
-var checkpoints := []
-
-var in_progress := false
-var stop_generation := false
-
-var last_direction : Vector2
-
-var end_position : Vector2
-
-onready var track_map := $TrackMap
 onready var checkpoint_container := $Checkpoints
+onready var track_generator := $TrackGenerator
+onready var track_map := $TrackMap
+
 
 func _ready() -> void:
-	assert(min_length < max_length)
-	
 	randomize()
-	generate()
 	
+	track_generator.connect("generation_finished", self, "_on_track_generated")
+	track_generator.generate()
+
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed():
 		
-		if in_progress:
-			stop_generation = true
-			yield(self, "generation_completed")
+		# Makes sure to stop the generation of the track
+		var stop = track_generator.stop()
+		if stop is GDScriptFunctionState:
+			yield(stop, "completed")
+		
+		reset_track()
+		track_generator.generate()
 
-		regenerate()
+
+func _on_track_generated(track: Array) -> void:
+	reset_track()
+	create_road(track)
+	create_checkpoints(track)
 
 
-func regenerate() -> void:
+func create_road(track: Array) -> void:
+	for index in track.size():
+		var position = track[index]
+		
+		var next_direction = position.direction_to(track[(index + 1) % track.size()])
+		var prev_direction = position.direction_to(track[index - 1])
+
+		match [index, prev_direction, next_direction]:
+			[0, Vector2.UP, _], [0, Vector2.DOWN, _]:
+				track_map.set_cellv(position, track_map.tile_set.find_tile_by_name("start_vertical"))
+			[0, Vector2.RIGHT, _], [0, Vector2.LEFT, _]:
+				track_map.set_cellv(position, track_map.tile_set.find_tile_by_name("start_horizontal"))
+			[_, Vector2.UP, Vector2.RIGHT], [_, Vector2.RIGHT, Vector2.UP]:
+				track_map.set_cellv(position, track_map.tile_set.find_tile_by_name("up_right"))
+			[_, Vector2.UP, Vector2.DOWN], [_, Vector2.DOWN, Vector2.UP]:
+				track_map.set_cellv(position, track_map.tile_set.find_tile_by_name("vertical"))
+			[_, Vector2.UP, Vector2.LEFT], [_, Vector2.LEFT, Vector2.UP]:
+				track_map.set_cellv(position, track_map.tile_set.find_tile_by_name("up_left"))
+			[_, Vector2.RIGHT, Vector2.DOWN], [_, Vector2.DOWN, Vector2.RIGHT]:
+				track_map.set_cellv(position, track_map.tile_set.find_tile_by_name("down_right"))
+			[_, Vector2.RIGHT, Vector2.LEFT], [_, Vector2.LEFT, Vector2.RIGHT]:
+				track_map.set_cellv(position, track_map.tile_set.find_tile_by_name("horizontal"))
+			[_, Vector2.DOWN, Vector2.LEFT], [_, Vector2.LEFT, Vector2.DOWN]:
+				track_map.set_cellv(position, track_map.tile_set.find_tile_by_name("down_left"))
+
+
+func create_checkpoints(track: Array) -> void:
+	for position in track:
+		var checkpoint_scene = load("res://road/checkpoint.tscn").instance()
+		checkpoint_scene.position = position * track_map.cell_size
+		checkpoint_container.add_child(checkpoint_scene)
+
+
+func reset_track() -> void:
 	track_map.clear()
-	track = []
-	checkpoints = []
 	for checkpoint in checkpoint_container.get_children():
 		checkpoint.queue_free()
-		
-	generate()
-
-
-func generate() -> void:
-	
-	in_progress = true
-	
-	# start position
-	var start_position = Vector2(randi() % int(track_rect.size.x - 2) + 1, randi() % int(track_rect.size.y - 2) + 1)
-	track.push_back(start_position)
-	
-	var position = next_position()
-	track.push_back(position)
-	create_checkpoint(position)
-	
-	end_position = start_position - last_direction
-
-	if last_direction == Vector2.UP or last_direction == Vector2.DOWN:
-		track_map.set_cellv(start_position, track_map.tile_set.find_tile_by_name("start_vertical"))
-	
-	if last_direction == Vector2.LEFT or last_direction == Vector2.RIGHT:
-		track_map.set_cellv(start_position, track_map.tile_set.find_tile_by_name("start_horizontal"))
-	
-	
-	# generate track
-	while !stop_generation and position != end_position:
-		position = next_position()
-		track.push_back(position)
-		create_checkpoint(position)
-		
-		if track.size() > 2:
-			draw_cell(track[-2], track[-3], track[-1])
-		
-		if generation_debug:
-			yield(get_tree().create_timer(generation_delay), "timeout")
-	
-	# draw last cell with start_position
-	draw_cell(track[-1], track[-2], track[0])
-
-	create_checkpoint(start_position)
-
-	if !stop_generation and (track.size() < min_length or track.size() > max_length):
-		return regenerate()
-	
-	stop_generation = false
-	in_progress = false
-	emit_signal("generation_completed")
-
-
-func next_position() -> Vector2:
-	var position = track[-1]
-	var directions := get_available_directions(position)
-	
-	if directions.empty():
-		rollback()
-		return next_position()
-	
-	last_direction = directions[randi() % directions.size()]
-	var next_position = position + last_direction
-		
-	return next_position
-	
-func create_checkpoint(position: Vector2) -> void:
-	var checkpoint_scene = load("res://checkpoint.tscn").instance()
-	checkpoint_scene.position = position * 128
-	checkpoint_container.add_child(checkpoint_scene)
-	checkpoints.push_back(checkpoint_scene)
-	
-	
-func draw_cell(cell: Vector2, prev_cell: Vector2, next_cell: Vector2) -> void:
-	var next_direction = cell.direction_to(next_cell)
-	var prev_direction = cell.direction_to(prev_cell)
-
-	match [prev_direction, next_direction]:
-		[Vector2.UP, Vector2.RIGHT], [Vector2.RIGHT, Vector2.UP]:
-			track_map.set_cellv(cell, track_map.tile_set.find_tile_by_name("up_right"))
-		[Vector2.UP, Vector2.DOWN], [Vector2.DOWN, Vector2.UP]:
-			track_map.set_cellv(cell, track_map.tile_set.find_tile_by_name("vertical"))
-		[Vector2.UP, Vector2.LEFT], [Vector2.LEFT, Vector2.UP]:
-			track_map.set_cellv(cell, track_map.tile_set.find_tile_by_name("up_left"))
-		[Vector2.RIGHT, Vector2.DOWN], [Vector2.DOWN, Vector2.RIGHT]:
-			track_map.set_cellv(cell, track_map.tile_set.find_tile_by_name("down_right"))
-		[Vector2.RIGHT, Vector2.LEFT], [Vector2.LEFT, Vector2.RIGHT]:
-			track_map.set_cellv(cell, track_map.tile_set.find_tile_by_name("horizontal"))
-		[Vector2.DOWN, Vector2.LEFT], [Vector2.LEFT, Vector2.DOWN]:
-			track_map.set_cellv(cell, track_map.tile_set.find_tile_by_name("down_left"))
-
-func rollback() -> void:
-	var index = track.size()
-	
-	var position = track.pop_back()
-	var last_checkpoint = checkpoints.pop_back()
-	
-	if last_checkpoint:
-		last_checkpoint.queue_free()
-	
-	track_map.set_cellv(position, CELLS.LOCK)
-	
-	
-func get_available_directions(position: Vector2) -> Array:
-	var available_directions := []
-	
-	var directions = DIRECTIONS.duplicate()
-	
-	if last_direction_priority != 0:
-		for i in last_direction_priority:
-			directions.push_back(last_direction)
-	
-	for direction in directions:
-		var test_position = position + direction
-		if track_map.get_cellv(test_position) == CELLS.EMPTY and track_rect.has_point(test_position):
-			available_directions.push_back(direction)
-	
-	return available_directions
-	
