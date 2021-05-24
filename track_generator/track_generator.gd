@@ -82,7 +82,7 @@ func generate() -> Array:
 
 
 func get_random_direction(previous_direction: Vector2 = Vector2.ZERO) -> Vector2:
-	var position = track[-1]
+	var position = track.back()
 	var directions := get_valid_directions(position, previous_direction)
 	
 	if directions.empty():
@@ -117,7 +117,7 @@ func is_direction_valid(position: Vector2, direction: Vector2) -> bool:
 func rollback() -> Vector2:
 	var position = track.pop_back()
 	map.set_cellv(current_position, TileTypes.LOCKED)
-	return track[-1]
+	return track.back()
 
 
 func stop() -> void:
