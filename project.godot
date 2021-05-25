@@ -20,7 +20,7 @@ _global_script_class_icons={
 
 [application]
 
-config/name="parcours-generation"
+config/name="2d-track-generator"
 run/main_scene="res://main.tscn"
 config/icon="res://icon.png"
 
