@@ -10,52 +10,52 @@
 [ext_resource path="res://road/assets/road_asphalt41.png" type="Texture" id=8]
 
 [sub_resource type="ConvexPolygonShape2D" id=1]
-points = PoolVector2Array( 128, 20, 0, 20, 0, 0, 128, 0 )
+points = PoolVector2Array( 64, 10, 0, 10, 0, 0, 64, 0 )
 
 [sub_resource type="ConvexPolygonShape2D" id=2]
-points = PoolVector2Array( 128, 128, 0, 128, 0, 108, 128, 108 )
+points = PoolVector2Array( 64, 64, 0, 64, 0, 54, 64, 54 )
 
 [sub_resource type="ConvexPolygonShape2D" id=3]
-points = PoolVector2Array( 20, 128, 0, 128, 0, 0, 20, 0 )
+points = PoolVector2Array( 10, 64, 0, 64, 0, 0, 10, 0 )
 
 [sub_resource type="ConvexPolygonShape2D" id=4]
-points = PoolVector2Array( 128, 128, 108, 128, 108, 0, 128, 0 )
+points = PoolVector2Array( 64, 64, 54, 64, 54, 0, 64, 0 )
 
 [sub_resource type="ConvexPolygonShape2D" id=5]
-points = PoolVector2Array( 0, 128, 4, 96, 12, 64, 36, 32, 60, 16, 96, 4, 128, 0, 128, 20, 100, 24, 72, 32, 48, 48, 32, 72, 24, 100, 20, 128 )
+points = PoolVector2Array( 0, 64, 0, 64, 2, 48, 6, 32, 16, 18, 32, 8, 48, 2, 64, 0, 64, 10, 50, 12, 36, 16, 24, 24, 16, 36, 12, 50, 10, 64 )
 
 [sub_resource type="ConvexPolygonShape2D" id=6]
-points = PoolVector2Array( 108, 128, 108, 124, 112, 116, 116, 112, 124, 108, 128, 108, 128, 128 )
+points = PoolVector2Array( 54, 64, 54, 64, 56, 58, 58, 56, 64, 54, 64, 64 )
 
 [sub_resource type="ConvexPolygonShape2D" id=7]
-points = PoolVector2Array( 128, 20, 0, 20, 0, 0, 128, 0 )
+points = PoolVector2Array( 64, 10, 0, 10, 0, 0, 64, 0 )
 
 [sub_resource type="ConvexPolygonShape2D" id=8]
-points = PoolVector2Array( 128, 128, 0, 128, 0, 108, 128, 108 )
+points = PoolVector2Array( 64, 64, 0, 64, 0, 54, 64, 54 )
 
 [sub_resource type="ConvexPolygonShape2D" id=9]
-points = PoolVector2Array( 0, 0, 32, 4, 68, 12, 96, 32, 116, 60, 124, 96, 128, 128, 108, 128, 104, 100, 96, 72, 80, 48, 56, 32, 28, 24, 0, 20 )
+points = PoolVector2Array( 0, 64, 0, 64, 0, 54, 6, 56, 8, 58, 10, 64 )
 
 [sub_resource type="ConvexPolygonShape2D" id=10]
-points = PoolVector2Array( 0, 108, 4, 108, 12, 112, 16, 116, 20, 124, 20, 128, 0, 128 )
+points = PoolVector2Array( 0, 0, 0, 0, 16, 2, 34, 8, 48, 18, 58, 32, 62, 48, 64, 64, 54, 64, 52, 50, 48, 36, 40, 24, 28, 16, 14, 12, 0, 10 )
 
 [sub_resource type="ConvexPolygonShape2D" id=11]
-points = PoolVector2Array( 20, 0, 24, 28, 32, 56, 48, 80, 72, 96, 100, 104, 128, 108, 128, 128, 96, 124, 64, 116, 32, 96, 12, 64, 4, 32, 0, 0 )
+points = PoolVector2Array( 0, 0, 0, 0, 10, 0, 12, 14, 16, 28, 24, 40, 36, 48, 50, 54, 64, 54, 64, 64, 48, 62, 30, 58, 18, 48, 8, 34, 2, 16 )
 
 [sub_resource type="ConvexPolygonShape2D" id=12]
-points = PoolVector2Array( 128, 0, 128, 20, 124, 20, 116, 16, 112, 12, 108, 4, 108, 0 )
+points = PoolVector2Array( 54, 0, 54, 0, 64, 0, 64, 10, 58, 8, 56, 6 )
 
 [sub_resource type="ConvexPolygonShape2D" id=13]
-points = PoolVector2Array( 0, 108, 28, 104, 56, 96, 80, 80, 96, 56, 104, 28, 108, 0, 128, 0, 124, 36, 116, 64, 92, 96, 64, 116, 32, 124, 0, 128 )
+points = PoolVector2Array( 0, 0, 0, 0, 10, 0, 8, 6, 6, 8, 0, 10 )
 
 [sub_resource type="ConvexPolygonShape2D" id=14]
-points = PoolVector2Array( 0, 0, 20, 0, 20, 4, 16, 12, 12, 16, 4, 20, 0, 20 )
+points = PoolVector2Array( 54, 0, 54, 0, 64, 0, 62, 18, 58, 34, 48, 48, 34, 58, 16, 62, 0, 64, 0, 54, 14, 52, 28, 48, 40, 40, 48, 28, 54, 14 )
 
 [sub_resource type="ConvexPolygonShape2D" id=15]
-points = PoolVector2Array( 20, 128, 0, 128, 0, 0, 20, 0 )
+points = PoolVector2Array( 10, 64, 0, 64, 0, 0, 10, 0 )
 
 [sub_resource type="ConvexPolygonShape2D" id=16]
-points = PoolVector2Array( 128, 128, 108, 128, 108, 0, 128, 0 )
+points = PoolVector2Array( 64, 64, 54, 64, 54, 0, 64, 0 )
 
 [resource]
 3/name = "vertical"
